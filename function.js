@@ -63,13 +63,13 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit3 = reduireNombre(total3);
 		
 		if (maitresNombres.includes(total2) || memoiresFamiliales.includes(total2)) {
-			return `${total2}/${reduit2}`;
+			return `${reduit2}`;
 		}
 		if (maitresNombres.includes(total3) || memoiresFamiliales.includes(total3)) {
-			return `${total3}/${reduit3}`;
+			return `${reduit3}`;
 		}
 		if (maitresNombres.includes(total1) || memoiresFamiliales.includes(total1)) {
-			return `${total1}/${reduit1}`;
+			return `${reduit1}`;
 		}
 		
 		return reduit1.toString();
@@ -81,7 +81,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit = reduireNombre(total);
 		
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return `${total}/${reduit}`;
+			return `${reduit}`;
 		}
 		return reduit.toString();
 	}
@@ -96,10 +96,10 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit2 = reduireNombre(total2);
 		
 		if (maitresNombres.includes(total1) || memoiresFamiliales.includes(total1)) {
-			return `${total1}/${reduit1}`;
+			return `${reduit1}`;
 		}
 		if (maitresNombres.includes(total2) || memoiresFamiliales.includes(total2)) {
-			return `${total2}/${reduit2}`;
+			return `${reduit2}`;
 		}
 		
 		return reduit1.toString();
@@ -114,7 +114,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit = reduireNombre(total);
 		
 		if (maitresNombres.includes(total)) {
-			return `${total}/${reduit}`;
+			return `${reduit}`;
 		}
 		return reduit.toString();
 	}
@@ -145,7 +145,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit = reduireNombre(total);
 		
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return `${total}/${reduit}`;
+			return `${reduit}`;
 		}
 		return reduit.toString();
 	}
@@ -161,7 +161,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit = reduireNombre(total);
 		
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return `${total}/${reduit}`;
+			return `${reduit}`;
 		}
 		return reduit.toString();
 	}
