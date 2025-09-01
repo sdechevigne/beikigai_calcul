@@ -1,0 +1,38 @@
+[
+	{
+		"kind": "column",
+		"name": "Calcul Numerologie",
+		"description": "Calcule tous les elements de numerologie (racines, tronc, dynamique, qualites, defis, etc.) à partir des prenoms, nom et date de naissance. Retourne un JSON complet avec tous les resultats.",
+		"author": "Système Numerologie <numerologie@example.com>",
+		"params": [
+			{
+				"name": "prenoms",
+				"displayName": "Prenoms",
+				"type": "string"
+			},
+			{
+				"name": "nom",
+				"displayName": "Nom de famille",
+				"type": "string"
+			},
+			{
+				"name": "jour",
+				"displayName": "Jour de naissance (1-31)",
+				"type": "string"
+			},
+			{
+				"name": "mois",
+				"displayName": "Mois de naissance (1-12)",
+				"type": "string"
+			},
+			{
+				"name": "annee",
+				"displayName": "Annee de naissance (ex: 1990)",
+				"type": "string"
+			}
+		],
+		"result": {
+			"type": "string"
+		}
+	}
+]
