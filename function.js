@@ -48,7 +48,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		return total;
 	}
 
-	function calculerRacine1(jour, mois, annee, slash = 0) {
+	function calculerRacine1(jour, mois, annee, slash) {
 		const total1 = jour + mois + annee;
 		const reduit1 = reduireNombre(total1);
 
@@ -63,31 +63,31 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit3 = reduireNombre(total3);
 
 		if (maitresNombres.includes(total2) || memoiresFamiliales.includes(total2)) {
-			return slash === 0 ? `${reduit2}` : `${total2}/${reduit2}`;
+			return slash != 1 ? `${reduit2}` : `${total2}/${reduit2}`;
 		}
 		if (maitresNombres.includes(total3) || memoiresFamiliales.includes(total3)) {
-			return slash === 0 ? `${reduit3}` : `${total3}/${reduit3}`;
+			return slash != 1 ? `${reduit3}` : `${total3}/${reduit3}`;
 		}
 		if (maitresNombres.includes(total1) || memoiresFamiliales.includes(total1)) {
-			return slash === 0 ? `${reduit1}` : `${total1}/${reduit1}`;
+			return slash != 1 ? `${reduit1}` : `${total1}/${reduit1}`;
 		}
 
 		return reduit1.toString();
 	}
 
-	function calculerRacine2(prenoms, nom, slash = 0) {
+	function calculerRacine2(prenoms, nom, slash) {
 		const texteComplet = prenoms + ' ' + nom;
 		const total = calculerValeurNom(texteComplet);
 		const reduit = reduireNombre(total);
 
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return slash === 0 ? `${reduit}` : `${total}/${reduit}`;
+			return slash != 1 ? `${reduit}` : `${total}/${reduit}`;
 		}
 
 		return reduit.toString();
 	}
 
-	function calculerTronc(jour, mois, slash= 0) {
+	function calculerTronc(jour, mois, slash) {
 		const total1 = jour + mois;
 		const reduit1 = reduireNombre(total1);
 
@@ -97,16 +97,16 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit2 = reduireNombre(total2);
 
 		if (maitresNombres.includes(total1) || memoiresFamiliales.includes(total1)) {
-			return slash === 0 ? `${reduit1}` : `${total1}/${reduit1}`;
+			return slash != 1 ? `${reduit1}` : `${total1}/${reduit1}`;
 		}
 		if (maitresNombres.includes(total2) || memoiresFamiliales.includes(total2)) {
-			return slash === 0 ? `${reduit2}` : `${total2}/${reduit2}`;
+			return slash != 1 ? `${reduit2}` : `${total2}/${reduit2}`;
 		}
 
 		return reduit1.toString();
 	}
 
-	function calculerDynamique(racine1, racine2, tronc,	 slash = 0) {
+	function calculerDynamique(racine1, racine2, tronc,	 slash) {
 		const val1 = parseInt(racine1.split('/')[0] || racine1);
 		const val2 = parseInt(racine2.split('/')[0] || racine2);
 		const val3 = parseInt(tronc.split('/')[0] || tronc);
@@ -115,7 +115,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit = reduireNombre(total);
 
 		if (maitresNombres.includes(total)) {
-			return slash === 0 ? `${reduit}` : `${total}/${reduit}`;
+			return slash != 1 ? `${reduit}` : `${total}/${reduit}`;
 		}
 		return reduit.toString();
 	}
@@ -135,7 +135,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		return count.toString();
 	}
 
-	function calculerFeuilles(prenoms, nom, slash = 0) {
+	function calculerFeuilles(prenoms, nom, slash) {
 		const texteComplet = normaliserTexte(prenoms + ' ' + nom);
 		let total = 0;
 		for (let lettre of texteComplet) {
@@ -146,12 +146,12 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit = reduireNombre(total);
 
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return slash === 0 ? `${reduit}` : `${total}/${reduit}`;
+			return slash != 1 ? `${reduit}` : `${total}/${reduit}`;
 		}
 		return reduit.toString();
 	}
 
-	function calculerFruits(prenoms, nom, slash = 0) {
+	function calculerFruits(prenoms, nom, slash) {
 		const texteComplet = normaliserTexte(prenoms + ' ' + nom);
 		let total = 0;
 		for (let lettre of texteComplet) {
@@ -162,7 +162,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit = reduireNombre(total);
 
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return slash === 0 ? `${reduit}` : `${total}/${reduit}`;
+			return slash != 1 ? `${reduit}` : `${total}/${reduit}`;
 		}
 		return reduit.toString();
 	}
