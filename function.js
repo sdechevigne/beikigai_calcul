@@ -6,7 +6,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 	mois = parseInt(mois?.value) || 1;
 	annee = parseInt(annee?.value) || 1900;
 
-	// Configuration des constantes (optimisées avec Object.freeze pour l'immutabilité)
+	// Configuration des constantes
 	const LETTRE_VALEUR = Object.freeze({
 		'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7, 'H': 8, 'I': 9,
 		'J': 1, 'K': 2, 'L': 3, 'M': 4, 'N': 5, 'O': 6, 'P': 7, 'Q': 8, 'R': 9,
@@ -17,17 +17,17 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 	const MAITRES_NOMBRES = Object.freeze(new Set([11, 22, 33]));
 	const MEMOIRES_FAMILIALES = Object.freeze(new Set([13, 14, 16, 19]));
 
-	// Fonctions utilitaires optimisées
+	// Fonctions utilitaires
 	const normaliserTexte = (texte) => {
-		const substitutions = {
-			'[ÉÈÊË]': 'E', '[ÀÂÄÃ]': 'A', '[ÎÏÌ]': 'I',
-			'[ÔÖÒÕ]': 'O', '[ÛÜÙŨ]': 'U', 'Ç': 'C', 'Ñ': 'N'
-		};
+		const substitutions = [
+			[/[ÉÈÊË]/g, 'E'], [/[ÀÂÄÃ]/g, 'A'], [/[ÎÏÌ]/g, 'I'],
+			[/[ÔÖÒÕ]/g, 'O'], [/[ÛÜÙŨ]/g, 'U'], [/Ç/g, 'C'], [/Ñ/g, 'N']
+		];
 		
 		let resultat = texte.toUpperCase();
-		for (const [pattern, replacement] of Object.entries(substitutions)) {
-			resultat = resultat.replace(new RegExp(pattern, 'g'), replacement);
-		}
+		substitutions.forEach(([pattern, replacement]) => {
+			resultat = resultat.replace(pattern, replacement);
+		});
 		return resultat;
 	};
 
@@ -41,8 +41,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 	};
 
 	const calculerValeurNom = (nom) => {
-		const nomNormalise = normaliserTexte(nom.replace(/-/g, ''));
-		return nomNormalise
+		return normaliserTexte(nom.replace(/-/g, ''))
 			.split('')
 			.reduce((total, lettre) => total + (LETTRE_VALEUR[lettre] || 0), 0);
 	};
@@ -50,91 +49,98 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 	const estNombreSpecial = (nombre) => 
 		MAITRES_NOMBRES.has(nombre) || MEMOIRES_FAMILIALES.has(nombre);
 
-	// Calculs principaux optimisés
+	// Classe pour encapsuler calcul + total
+	class CalculNumerologique {
+		constructor(calculs, totalPrincipal = null) {
+			this.calculs = Array.isArray(calculs) ? calculs : [calculs];
+			this.totalPrincipal = totalPrincipal;
+		}
+		
+		get valeurReduite() {
+			// Trouve le bon total selon la logique de priorité
+			const totalChoisi = this.calculs.find(calc => estNombreSpecial(calc.total)) || this.calculs[0];
+			return reduireNombre(totalChoisi.total).toString();
+		}
+		
+		get totalPourMemoires() {
+			// Même logique de priorité pour les mémoires
+			const totalChoisi = this.calculs.find(calc => estNombreSpecial(calc.total)) || this.calculs[0];
+			return totalChoisi.total;
+		}
+	}
+
+	// Calculs principaux retournant des objets CalculNumerologique
 	const calculerRacine1 = (jour, mois, annee) => {
-		const total1 = jour + mois + annee;
-		const reduit1 = reduireNombre(total1);
-		
-		const dateStr = `${jour.toString().padStart(2, '0')}${mois.toString().padStart(2, '0')}${annee}`;
-		const total2 = dateStr
-			.split('')
-			.reduce((sum, digit) => sum + parseInt(digit, 10), 0);
-		const reduit2 = reduireNombre(total2);
-		
-		const total3 = reduireNombre(jour) + reduireNombre(mois) + reduireNombre(annee);
-		const reduit3 = reduireNombre(total3);
-		
-		// Priorisation des nombres spéciaux
-		if (estNombreSpecial(total2)) return reduit2.toString();
-		if (estNombreSpecial(total3)) return reduit3.toString();
-		if (estNombreSpecial(total1)) return reduit1.toString();
-		
-		return reduit1.toString();
+		const calculs = [
+			{ total: jour + mois + annee, methode: 'somme_directe' },
+			{ 
+				total: `${jour.toString().padStart(2, '0')}${mois.toString().padStart(2, '0')}${annee}`
+					.split('')
+					.reduce((sum, digit) => sum + parseInt(digit, 10), 0),
+				methode: 'somme_chiffres_date'
+			},
+			{ 
+				total: reduireNombre(jour) + reduireNombre(mois) + reduireNombre(annee),
+				methode: 'somme_reduite'
+			}
+		];
+		return new CalculNumerologique(calculs);
 	};
 
 	const calculerRacine2 = (prenoms, nom) => {
 		const total = calculerValeurNom(`${prenoms} ${nom}`);
-		const reduit = reduireNombre(total);
-		return estNombreSpecial(total) ? reduit.toString() : reduit.toString();
+		return new CalculNumerologique([{ total, methode: 'valeur_nom' }]);
 	};
 
 	const calculerTronc = (jour, mois) => {
-		const total1 = jour + mois;
-		const reduit1 = reduireNombre(total1);
-		
-		const total2 = reduireNombre(jour) + reduireNombre(mois);
-		const reduit2 = reduireNombre(total2);
-		
-		if (estNombreSpecial(total1)) return reduit1.toString();
-		if (estNombreSpecial(total2)) return reduit2.toString();
-		
-		return reduit1.toString();
+		const calculs = [
+			{ total: jour + mois, methode: 'somme_directe' },
+			{ total: reduireNombre(jour) + reduireNombre(mois), methode: 'somme_reduite' }
+		];
+		return new CalculNumerologique(calculs);
 	};
 
-	const calculerDynamique = (racine1, racine2, tronc) => {
-		const extraireValeur = (valeur) => parseInt(valeur.split('/')[0] || valeur, 10);
-		
-		const total = extraireValeur(racine1) + extraireValeur(racine2) + extraireValeur(tronc);
+	const calculerValeursTexte = (prenoms, nom, filtreFonction) => {
+		const texteComplet = normaliserTexte(`${prenoms} ${nom}`);
+		const total = texteComplet
+			.split('')
+			.filter(filtreFonction)
+			.reduce((sum, lettre) => sum + (LETTRE_VALEUR[lettre] || 0), 0);
+		return new CalculNumerologique([{ total, methode: 'valeur_lettres' }]);
+	};
+
+	const calculerFeuilles = (prenoms, nom) => 
+		calculerValeursTexte(prenoms, nom, lettre => VOYELLES.has(lettre));
+
+	const calculerFruits = (prenoms, nom) => 
+		calculerValeursTexte(prenoms, nom, lettre => !VOYELLES.has(lettre));
+
+	const calculerDynamique = (racine1Calc, racine2Calc, troncCalc) => {
+		const total = parseInt(racine1Calc.valeurReduite) + 
+					 parseInt(racine2Calc.valeurReduite) + 
+					 parseInt(troncCalc.valeurReduite);
 		const reduit = reduireNombre(total);
-		
 		return MAITRES_NOMBRES.has(total) ? reduit.toString() : reduit.toString();
 	};
 
 	const calculerEcorce = (jour) => reduireNombre(jour).toString();
 
 	const calculerBranches = (prenoms, nom) => {
-		const texteComplet = normaliserTexte(`${prenoms} ${nom}`);
-		return texteComplet
+		return normaliserTexte(`${prenoms} ${nom}`)
 			.split('')
 			.filter(lettre => ['A', 'J', 'S'].includes(lettre))
 			.length
 			.toString();
 	};
 
-	const calculerValeursVoyellesConsonnes = (prenoms, nom, sontVoyelles) => {
-		const texteComplet = normaliserTexte(`${prenoms} ${nom}`);
-		const total = texteComplet
-			.split('')
-			.filter(lettre => sontVoyelles ? VOYELLES.has(lettre) : !VOYELLES.has(lettre))
-			.reduce((sum, lettre) => sum + (LETTRE_VALEUR[lettre] || 0), 0);
-		
-		const reduit = reduireNombre(total);
-		return estNombreSpecial(total) ? reduit.toString() : reduit.toString();
-	};
-
-	const calculerFeuilles = (prenoms, nom) => calculerValeursVoyellesConsonnes(prenoms, nom, true);
-	const calculerFruits = (prenoms, nom) => calculerValeursVoyellesConsonnes(prenoms, nom, false);
-
 	const calculerQualites = (prenoms, nom) => {
 		const texteComplet = normaliserTexte(`${prenoms} ${nom}`);
 		const qualites = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
 		
-		texteComplet
-			.split('')
-			.forEach(lettre => {
-				const valeur = LETTRE_VALEUR[lettre];
-				if (valeur) qualites[valeur]++;
-			});
+		texteComplet.split('').forEach(lettre => {
+			const valeur = LETTRE_VALEUR[lettre];
+			if (valeur) qualites[valeur]++;
+		});
 		
 		// Réduction des nombres > 9
 		Object.keys(qualites).forEach(key => {
@@ -146,10 +152,37 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		return qualites;
 	};
 
-	const chercherMemoires = (prenoms, nom, jour, mois, annee) => {
+	const calculerDefis = (jour, mois, annee) => {
+		const [jourR, moisR, anneeR] = [jour, mois, annee].map(reduireNombre);
+		
+		const calculerDefi = (a, b) => {
+			const diff = Math.abs(a - b);
+			return diff === 0 ? 9 : diff;
+		};
+		
+		return {
+			defi1: calculerDefi(jourR, moisR),
+			defi2: calculerDefi(jourR, anneeR),
+			defi3: calculerDefi(calculerDefi(jourR, moisR), calculerDefi(jourR, anneeR)),
+			defi4: calculerDefi(moisR, anneeR)
+		};
+	};
+
+	const calculerAnneePersonnelle = (jour, mois, anneeActuelle = new Date().getFullYear()) => 
+		reduireNombre(jour + mois + anneeActuelle);
+
+	// Exécution des calculs principaux
+	const racine1Calc = calculerRacine1(jour, mois, annee);
+	const racine2Calc = calculerRacine2(prenoms, nom);
+	const troncCalc = calculerTronc(jour, mois);
+	const feuillesCalc = calculerFeuilles(prenoms, nom);
+	const fruitsCalc = calculerFruits(prenoms, nom);
+
+	// Fonction de recherche des mémoires optimisée
+	const chercherMemoires = () => {
 		const memoires = [];
 		
-		// Vérification des dates de naissance
+		// Vérifications directes
 		if (MEMOIRES_FAMILIALES.has(jour)) {
 			memoires.push({ nombre: jour, lieu: 'Jour de naissance', importance: 'Très forte' });
 		}
@@ -162,65 +195,17 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 			memoires.push({ nombre: totalAnnee, lieu: 'Année de naissance', importance: 'Très forte' });
 		}
 		
-		// Calcul des totaux non réduits pour vérification des mémoires
-		const calculerTotalRacine1 = (jour, mois, annee) => {
-			const total1 = jour + mois + annee;
-			
-			const dateStr = `${jour.toString().padStart(2, '0')}${mois.toString().padStart(2, '0')}${annee}`;
-			const total2 = dateStr
-				.split('')
-				.reduce((sum, digit) => sum + parseInt(digit, 10), 0);
-			
-			const total3 = reduireNombre(jour) + reduireNombre(mois) + reduireNombre(annee);
-			
-			// Retourner les totaux dans l'ordre de priorité
-			if (estNombreSpecial(total2)) return total2;
-			if (estNombreSpecial(total3)) return total3;
-			if (estNombreSpecial(total1)) return total1;
-			
-			return total1;
-		};
-		
-		const calculerTotalRacine2 = (prenoms, nom) => {
-			return calculerValeurNom(`${prenoms} ${nom}`);
-		};
-		
-		const calculerTotalTronc = (jour, mois) => {
-			const total1 = jour + mois;
-			const total2 = reduireNombre(jour) + reduireNombre(mois);
-			
-			if (estNombreSpecial(total1)) return total1;
-			if (estNombreSpecial(total2)) return total2;
-			
-			return total1;
-		};
-		
-		const calculerTotalFeuilles = (prenoms, nom) => {
-			const texteComplet = normaliserTexte(`${prenoms} ${nom}`);
-			return texteComplet
-				.split('')
-				.filter(lettre => VOYELLES.has(lettre))
-				.reduce((sum, lettre) => sum + (LETTRE_VALEUR[lettre] || 0), 0);
-		};
-		
-		const calculerTotalFruits = (prenoms, nom) => {
-			const texteComplet = normaliserTexte(`${prenoms} ${nom}`);
-			return texteComplet
-				.split('')
-				.filter(lettre => !VOYELLES.has(lettre))
-				.reduce((sum, lettre) => sum + (LETTRE_VALEUR[lettre] || 0), 0);
-		};
-		
-		// Vérification dans les calculs principaux avec les totaux non réduits
-		const valeursAVerifier = [
-			{ total: calculerTotalRacine1(jour, mois, annee), lieu: 'Première racine (Chemin de vie)', importance: 'Très forte' },
-			{ total: calculerTotalRacine2(prenoms, nom), lieu: 'Seconde racine (Expression)', importance: 'Très forte' },
-			{ total: calculerTotalTronc(jour, mois), lieu: 'Tronc (Clé de l\'âme)', importance: 'Très forte' },
-			{ total: calculerTotalFeuilles(prenoms, nom), lieu: 'Feuilles (Besoins affectifs)', importance: 'Forte' },
-			{ total: calculerTotalFruits(prenoms, nom), lieu: 'Fruits (Besoins de réalisation)', importance: 'Forte' }
+		// Vérifications dans les calculs principaux
+		const verificationsMemoires = [
+			{ calc: racine1Calc, lieu: 'Première racine (Chemin de vie)', importance: 'Très forte' },
+			{ calc: racine2Calc, lieu: 'Seconde racine (Expression)', importance: 'Très forte' },
+			{ calc: troncCalc, lieu: 'Tronc (Clé de l\'âme)', importance: 'Très forte' },
+			{ calc: feuillesCalc, lieu: 'Feuilles (Besoins affectifs)', importance: 'Forte' },
+			{ calc: fruitsCalc, lieu: 'Fruits (Besoins de réalisation)', importance: 'Forte' }
 		];
 		
-		valeursAVerifier.forEach(({ total, lieu, importance }) => {
+		verificationsMemoires.forEach(({ calc, lieu, importance }) => {
+			const total = calc.totalPourMemoires;
 			if (MEMOIRES_FAMILIALES.has(total)) {
 				memoires.push({ nombre: total, lieu, importance });
 			}
@@ -229,42 +214,21 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		return memoires;
 	};
 
-	const calculerDefis = (jour, mois, annee) => {
-		const [jourR, moisR, anneeR] = [jour, mois, annee].map(reduireNombre);
-		
-		const calculerDefi = (a, b) => {
-			const diff = Math.abs(a - b);
-			return diff === 0 ? 9 : diff;
-		};
-		
-		const defi1 = calculerDefi(jourR, moisR);
-		const defi2 = calculerDefi(jourR, anneeR);
-		const defi3 = calculerDefi(defi1, defi2);
-		const defi4 = calculerDefi(moisR, anneeR);
-		
-		return { defi1, defi2, defi3, defi4 };
-	};
-
-	const calculerAnneePersonnelle = (jour, mois, anneeActuelle = new Date().getFullYear()) => 
-		reduireNombre(jour + mois + anneeActuelle);
-
-	// Exécution des calculs principaux
-	const resultats = {
-		racine1: calculerRacine1(jour, mois, annee),
-		racine2: calculerRacine2(prenoms, nom),
-		tronc: calculerTronc(jour, mois),
+	// Construction du résultat final
+	const resultat = {
+		racine1: racine1Calc.valeurReduite,
+		racine2: racine2Calc.valeurReduite,
+		tronc: troncCalc.valeurReduite,
+		dynamique: calculerDynamique(racine1Calc, racine2Calc, troncCalc),
 		ecorce: calculerEcorce(jour),
 		branches: calculerBranches(prenoms, nom),
-		feuilles: calculerFeuilles(prenoms, nom),
-		fruits: calculerFruits(prenoms, nom),
+		feuilles: feuillesCalc.valeurReduite,
+		fruits: fruitsCalc.valeurReduite,
 		qualites: calculerQualites(prenoms, nom),
+		memoires: chercherMemoires(),
 		defis: calculerDefis(jour, mois, annee),
 		anneePersonnelle: calculerAnneePersonnelle(jour, mois)
 	};
-	
-	// Calculs dépendants
-	resultats.dynamique = calculerDynamique(resultats.racine1, resultats.racine2, resultats.tronc);
-	resultats.memoires = chercherMemoires(prenoms, nom, jour, mois, annee);
 
-	return JSON.stringify(resultats);
+	return JSON.stringify(resultat);
 };
