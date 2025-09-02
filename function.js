@@ -162,21 +162,67 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 			memoires.push({ nombre: totalAnnee, lieu: 'Année de naissance', importance: 'Très forte' });
 		}
 		
-		// Vérification dans les calculs principaux
+		// Calcul des totaux non réduits pour vérification des mémoires
+		const calculerTotalRacine1 = (jour, mois, annee) => {
+			const total1 = jour + mois + annee;
+			
+			const dateStr = `${jour.toString().padStart(2, '0')}${mois.toString().padStart(2, '0')}${annee}`;
+			const total2 = dateStr
+				.split('')
+				.reduce((sum, digit) => sum + parseInt(digit, 10), 0);
+			
+			const total3 = reduireNombre(jour) + reduireNombre(mois) + reduireNombre(annee);
+			
+			// Retourner les totaux dans l'ordre de priorité
+			if (estNombreSpecial(total2)) return total2;
+			if (estNombreSpecial(total3)) return total3;
+			if (estNombreSpecial(total1)) return total1;
+			
+			return total1;
+		};
+		
+		const calculerTotalRacine2 = (prenoms, nom) => {
+			return calculerValeurNom(`${prenoms} ${nom}`);
+		};
+		
+		const calculerTotalTronc = (jour, mois) => {
+			const total1 = jour + mois;
+			const total2 = reduireNombre(jour) + reduireNombre(mois);
+			
+			if (estNombreSpecial(total1)) return total1;
+			if (estNombreSpecial(total2)) return total2;
+			
+			return total1;
+		};
+		
+		const calculerTotalFeuilles = (prenoms, nom) => {
+			const texteComplet = normaliserTexte(`${prenoms} ${nom}`);
+			return texteComplet
+				.split('')
+				.filter(lettre => VOYELLES.has(lettre))
+				.reduce((sum, lettre) => sum + (LETTRE_VALEUR[lettre] || 0), 0);
+		};
+		
+		const calculerTotalFruits = (prenoms, nom) => {
+			const texteComplet = normaliserTexte(`${prenoms} ${nom}`);
+			return texteComplet
+				.split('')
+				.filter(lettre => !VOYELLES.has(lettre))
+				.reduce((sum, lettre) => sum + (LETTRE_VALEUR[lettre] || 0), 0);
+		};
+		
+		// Vérification dans les calculs principaux avec les totaux non réduits
 		const valeursAVerifier = [
-			{ valeur: calculerRacine1(jour, mois, annee), lieu: 'Première racine (Chemin de vie)', importance: 'Très forte' },
-			{ valeur: calculerRacine2(prenoms, nom), lieu: 'Seconde racine (Expression)', importance: 'Très forte' },
-			{ valeur: calculerTronc(jour, mois), lieu: 'Tronc (Clé de l\'âme)', importance: 'Très forte' },
-			{ valeur: calculerFeuilles(prenoms, nom), lieu: 'Feuilles (Besoins affectifs)', importance: 'Forte' },
-			{ valeur: calculerFruits(prenoms, nom), lieu: 'Fruits (Besoins de réalisation)', importance: 'Forte' }
+			{ total: calculerTotalRacine1(jour, mois, annee), lieu: 'Première racine (Chemin de vie)', importance: 'Très forte' },
+			{ total: calculerTotalRacine2(prenoms, nom), lieu: 'Seconde racine (Expression)', importance: 'Très forte' },
+			{ total: calculerTotalTronc(jour, mois), lieu: 'Tronc (Clé de l\'âme)', importance: 'Très forte' },
+			{ total: calculerTotalFeuilles(prenoms, nom), lieu: 'Feuilles (Besoins affectifs)', importance: 'Forte' },
+			{ total: calculerTotalFruits(prenoms, nom), lieu: 'Fruits (Besoins de réalisation)', importance: 'Forte' }
 		];
 		
-		valeursAVerifier.forEach(({ valeur, lieu, importance }) => {
-			if (valeur.includes('/')) {
-				const sousNombre = parseInt(valeur.split('/')[0], 10);
-				if (MEMOIRES_FAMILIALES.has(sousNombre)) {
-					memoires.push({ nombre: sousNombre, lieu, importance });
-				}
+		valeursAVerifier.forEach(({ total, lieu, importance }) => {
+			if (MEMOIRES_FAMILIALES.has(total)) {
+				memoires.push({ nombre: total, lieu, importance });
 			}
 		});
 		
