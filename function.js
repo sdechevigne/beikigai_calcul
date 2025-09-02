@@ -48,73 +48,74 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		return total;
 	}
 
-	function calculerRacine1(jour, mois, annee) {
+	function calculerRacine1(jour, mois, annee, slash = 0) {
 		const total1 = jour + mois + annee;
 		const reduit1 = reduireNombre(total1);
-		
+
 		const dateStr = `${jour.toString().padStart(2, '0')}${mois.toString().padStart(2, '0')}${annee}`;
 		const total2 = dateStr.split('').reduce((sum, digit) => sum + parseInt(digit), 0);
 		const reduit2 = reduireNombre(total2);
-		
+
 		const jourReduit = reduireNombre(jour);
 		const moisReduit = reduireNombre(mois);
 		const anneeReduite = reduireNombre(annee);
 		const total3 = jourReduit + moisReduit + anneeReduite;
 		const reduit3 = reduireNombre(total3);
-		
+
 		if (maitresNombres.includes(total2) || memoiresFamiliales.includes(total2)) {
-			return `${reduit2}`;
+			return slash === 0 ? `${reduit2}` : `${total2}/${reduit2}`;
 		}
 		if (maitresNombres.includes(total3) || memoiresFamiliales.includes(total3)) {
-			return `${reduit3}`;
+			return slash === 0 ? `${reduit3}` : `${total3}/${reduit3}`;
 		}
 		if (maitresNombres.includes(total1) || memoiresFamiliales.includes(total1)) {
-			return `${reduit1}`;
+			return slash === 0 ? `${reduit1}` : `${total1}/${reduit1}`;
 		}
-		
+
 		return reduit1.toString();
 	}
 
-	function calculerRacine2(prenoms, nom) {
+	function calculerRacine2(prenoms, nom, slash = 0) {
 		const texteComplet = prenoms + ' ' + nom;
 		const total = calculerValeurNom(texteComplet);
 		const reduit = reduireNombre(total);
-		
+
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return `${reduit}`;
+			return slash === 0 ? `${reduit}` : `${total}/${reduit}`;
 		}
+
 		return reduit.toString();
 	}
 
-	function calculerTronc(jour, mois) {
+	function calculerTronc(jour, mois, slash= 0) {
 		const total1 = jour + mois;
 		const reduit1 = reduireNombre(total1);
-		
+
 		const jourReduit = reduireNombre(jour);
 		const moisReduit = reduireNombre(mois);
 		const total2 = jourReduit + moisReduit;
 		const reduit2 = reduireNombre(total2);
-		
+
 		if (maitresNombres.includes(total1) || memoiresFamiliales.includes(total1)) {
-			return `${reduit1}`;
+			return slash === 0 ? `${reduit1}` : `${total1}/${reduit1}`;
 		}
 		if (maitresNombres.includes(total2) || memoiresFamiliales.includes(total2)) {
-			return `${reduit2}`;
+			return slash === 0 ? `${reduit2}` : `${total2}/${reduit2}`;
 		}
-		
+
 		return reduit1.toString();
 	}
 
-	function calculerDynamique(racine1, racine2, tronc) {
+	function calculerDynamique(racine1, racine2, tronc,	 slash = 0) {
 		const val1 = parseInt(racine1.split('/')[0] || racine1);
 		const val2 = parseInt(racine2.split('/')[0] || racine2);
 		const val3 = parseInt(tronc.split('/')[0] || tronc);
-		
+
 		const total = val1 + val2 + val3;
 		const reduit = reduireNombre(total);
-		
+
 		if (maitresNombres.includes(total)) {
-			return `${reduit}`;
+			return slash === 0 ? `${reduit}` : `${total}/${reduit}`;
 		}
 		return reduit.toString();
 	}
@@ -134,7 +135,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		return count.toString();
 	}
 
-	function calculerFeuilles(prenoms, nom) {
+	function calculerFeuilles(prenoms, nom, slash = 0) {
 		const texteComplet = normaliserTexte(prenoms + ' ' + nom);
 		let total = 0;
 		for (let lettre of texteComplet) {
@@ -143,14 +144,14 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 			}
 		}
 		const reduit = reduireNombre(total);
-		
+
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return `${reduit}`;
+			return slash === 0 ? `${reduit}` : `${total}/${reduit}`;
 		}
 		return reduit.toString();
 	}
 
-	function calculerFruits(prenoms, nom) {
+	function calculerFruits(prenoms, nom, slash = 0) {
 		const texteComplet = normaliserTexte(prenoms + ' ' + nom);
 		let total = 0;
 		for (let lettre of texteComplet) {
@@ -159,9 +160,9 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 			}
 		}
 		const reduit = reduireNombre(total);
-		
+
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return `${reduit}`;
+			return slash === 0 ? `${reduit}` : `${total}/${reduit}`;
 		}
 		return reduit.toString();
 	}
@@ -172,37 +173,44 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 			1: 0, 2: 0, 3: 0, 4: 0, 5: 0,
 			6: 0, 7: 0, 8: 0, 9: 0
 		};
-		
+
 		for (let lettre of texteComplet) {
 			if (lettreValeur[lettre]) {
 				qualites[lettreValeur[lettre]]++;
 			}
 		}
-		
+
 		// Réduire les nombres > 9
 		for (let key in qualites) {
 			if (qualites[key] > 9) {
 				qualites[key] = reduireNombre(qualites[key]);
 			}
 		}
-		
+
 		return qualites;
 	}
 
-	function chercherMemoires(prenoms, nom, jour, mois, annee, racine1, racine2, tronc, feuilles, fruits) {
+	function chercherMemoires(prenoms, nom, jour, mois, annee) {
 		const memoires = [];
-		
+
+		// Recalculer les valeurs nécessaires
+		const racine1 = calculerRacine1(jour, mois, annee, 1);
+		const racine2 = calculerRacine2(prenoms, nom, 1);
+		const tronc = calculerTronc(jour, mois, 1);
+		const feuilles = calculerFeuilles(prenoms, nom, 1);
+		const fruits = calculerFruits(prenoms, nom, 1);
+
 		// Jour de naissance
 		if (memoiresFamiliales.includes(jour)) {
 			memoires.push({ nombre: jour, lieu: 'Jour de naissance', importance: 'Très forte' });
 		}
-		
+
 		// Année de naissance
 		const totalAnnee = annee.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0);
 		if (memoiresFamiliales.includes(totalAnnee)) {
 			memoires.push({ nombre: totalAnnee, lieu: 'Année de naissance', importance: 'Très forte' });
 		}
-		
+
 		// Dans les racines et tronc
 		const checkMemoire = (valeur, lieu, importance) => {
 			if (valeur.includes('/')) {
@@ -212,13 +220,13 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 				}
 			}
 		};
-		
+
 		checkMemoire(racine1, 'Première racine (Chemin de vie)', 'Très forte');
 		checkMemoire(racine2, 'Seconde racine (Expression)', 'Très forte');
 		checkMemoire(tronc, 'Tronc (Clé de l\'âme)', 'Très forte');
 		checkMemoire(feuilles, 'Feuilles (Besoins affectifs)', 'Forte');
 		checkMemoire(fruits, 'Fruits (Besoins de réalisation)', 'Forte');
-		
+
 		return memoires;
 	}
 
@@ -226,18 +234,18 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const jourReduit = reduireNombre(jour);
 		const moisReduit = reduireNombre(mois);
 		const anneeReduite = reduireNombre(annee);
-		
+
 		let defi1 = Math.abs(jourReduit - moisReduit);
 		let defi2 = Math.abs(jourReduit - anneeReduite);
 		let defi3 = Math.abs(defi1 - defi2);
 		let defi4 = Math.abs(moisReduit - anneeReduite);
-		
+
 		// Remplacer 0 par 9
 		if (defi1 === 0) defi1 = 9;
 		if (defi2 === 0) defi2 = 9;
 		if (defi3 === 0) defi3 = 9;
 		if (defi4 === 0) defi4 = 9;
-		
+
 		return { defi1, defi2, defi3, defi4 };
 	}
 
@@ -256,7 +264,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 	const feuilles = calculerFeuilles(prenoms, nom);
 	const fruits = calculerFruits(prenoms, nom);
 	const qualites = calculerQualites(prenoms, nom);
-	const memoires = chercherMemoires(prenoms, nom, jour, mois, annee, racine1, racine2, tronc, feuilles, fruits);
+	const memoires = chercherMemoires(prenoms, nom, jour, mois, annee);
 	const defis = calculerDefis(jour, mois, annee);
 	const anneePersonnelle = calculerAnneePersonnelle(jour, mois, new Date().getFullYear());
 
