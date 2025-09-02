@@ -227,7 +227,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		checkMemoire(feuilles, 'Feuilles (Besoins affectifs)', 'Forte');
 		checkMemoire(fruits, 'Fruits (Besoins de réalisation)', 'Forte');
 
-		return memoires;
+		return memoires + racine1;
 	}
 
 	function calculerDefis(jour, mois, annee) {
