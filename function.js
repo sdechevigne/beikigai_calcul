@@ -63,13 +63,13 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit3 = reduireNombre(total3);
 
 		if (maitresNombres.includes(total2) || memoiresFamiliales.includes(total2)) {
-			return slash != 1 ? `${reduit2}` : `${total2}/${reduit2}`;
+			return slash == null ? `${reduit2}` : `${total2}/${reduit2}`;
 		}
 		if (maitresNombres.includes(total3) || memoiresFamiliales.includes(total3)) {
-			return slash != 1 ? `${reduit3}` : `${total3}/${reduit3}`;
+			return slash == null ? `${reduit3}` : `${total3}/${reduit3}`;
 		}
 		if (maitresNombres.includes(total1) || memoiresFamiliales.includes(total1)) {
-			return slash != 1 ? `${reduit1}` : `${total1}/${reduit1}`;
+			return slash == null ? `${reduit1}` : `${total1}/${reduit1}`;
 		}
 
 		return reduit1.toString();
@@ -81,7 +81,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit = reduireNombre(total);
 
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return slash != 1 ? `${reduit}` : `${total}/${reduit}`;
+			return slash == null ? `${reduit}` : `${total}/${reduit}`;
 		}
 
 		return reduit.toString();
@@ -97,10 +97,10 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit2 = reduireNombre(total2);
 
 		if (maitresNombres.includes(total1) || memoiresFamiliales.includes(total1)) {
-			return slash != 1 ? `${reduit1}` : `${total1}/${reduit1}`;
+			return slash == null ? `${reduit1}` : `${total1}/${reduit1}`;
 		}
 		if (maitresNombres.includes(total2) || memoiresFamiliales.includes(total2)) {
-			return slash != 1 ? `${reduit2}` : `${total2}/${reduit2}`;
+			return slash == null ? `${reduit2}` : `${total2}/${reduit2}`;
 		}
 
 		return reduit1.toString();
@@ -115,7 +115,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit = reduireNombre(total);
 
 		if (maitresNombres.includes(total)) {
-			return slash != 1 ? `${reduit}` : `${total}/${reduit}`;
+			return slash == null ? `${reduit}` : `${total}/${reduit}`;
 		}
 		return reduit.toString();
 	}
@@ -146,7 +146,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit = reduireNombre(total);
 
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return slash != 1 ? `${reduit}` : `${total}/${reduit}`;
+			return slash == null ? `${reduit}` : `${total}/${reduit}`;
 		}
 		return reduit.toString();
 	}
@@ -162,7 +162,7 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const reduit = reduireNombre(total);
 
 		if (maitresNombres.includes(total) || memoiresFamiliales.includes(total)) {
-			return slash != 1 ? `${reduit}` : `${total}/${reduit}`;
+			return slash == null ? `${reduit}` : `${total}/${reduit}`;
 		}
 		return reduit.toString();
 	}
@@ -194,11 +194,11 @@ window.function = function (prenoms, nom, jour, mois, annee) {
 		const memoires = [];
 
 		// Recalculer les valeurs nécessaires
-		const racine1 = calculerRacine1(jour, mois, annee, 1);
-		const racine2 = calculerRacine2(prenoms, nom, 1);
-		const tronc = calculerTronc(jour, mois, 1);
-		const feuilles = calculerFeuilles(prenoms, nom, 1);
-		const fruits = calculerFruits(prenoms, nom, 1);
+		const racine1 = calculerRacine1(jour, mois, annee, '1');
+		const racine2 = calculerRacine2(prenoms, nom, '1');
+		const tronc = calculerTronc(jour, mois, '1');
+		const feuilles = calculerFeuilles(prenoms, nom, '1');
+		const fruits = calculerFruits(prenoms, nom, '1');
 
 		// Jour de naissance
 		if (memoiresFamiliales.includes(jour)) {
